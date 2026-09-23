@@ -9,7 +9,11 @@ CREATE TABLE official_role (
 )
 
 CREATE TABLE stadium (
-	
+	stadium_id INT PRIMARY KEY,
+	name VARCHAR NOT NULL,
+	city VARCHAR,
+	country VARCHAR,
+	capacity INT
 )
 
 CREATE TABLE person (
@@ -20,15 +24,16 @@ CREATE TABLE person (
 )
 
 CREATE TABLE team (
-	team_id int PRIMARY KEY,
-	country_name varchar NOT NULL,
+	team_id INT PRIMARY KEY,
+	country_name VARCHAR NOT NULL,
 	fifa_rank INT NOT NULL
-	
 )
 
 CREATE TABLE staff_member (
-	
-	
+	staff_member_id INT PRIMARY KEY,
+	person_id INT NOT NULL,
+	staff_role_id INT NOT NULL,
+	team_id INT NOT NULL	
 )
 
 CREATE TABLE player (
@@ -40,7 +45,16 @@ CREATE TABLE player (
 )
 
 CREATE TABLE match (
-	
+	match_id INT PRIMARY KEY,
+	team_1_id INT NOT NULL,
+	team_2_id INT NOT NULL,
+	stadium_id INT NOT NULL,
+	attendance INT,
+	first_half_start DATETIME,
+	first_half_end DATETIME,
+	second_half_start DATETIME,
+	second_half_end DATETIME,
+	is_abandoned BOOLEAN NOT NULL
 )
 
 CREATE TABLE goal (
@@ -53,7 +67,11 @@ CREATE TABLE goal (
 )
 
 CREATE TABLE substitute (
-	
+	substitute_id INT PRIMARY KEY,
+	minute INT NOT NULL,
+	player_out INT NOT NULL,
+	player_in INT NOT NULL,
+	match_id INT NOT NULL
 )
 
 CREATE TABLE card (
