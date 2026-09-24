@@ -114,7 +114,7 @@ CREATE TABLE match_official (
     FOREIGN KEY (official_role_id) REFERENCES official_role(official_role_id),
     FOREIGN KEY (person_id) REFERENCES person(person_id),
     FOREIGN KEY (match_id) REFERENCES match(match_id)
-)
+);
 
 
 INSERT INTO staff_role (staff_role_id, role_name) VALUES
