@@ -3,13 +3,15 @@
 -- FIFA World Cup 2026 database
 --
 -- Creates the database (Task 1), inserts sample records and runs the
--- Task 2 queries. Run it from the sqlite3 shell:
+-- Task 2 queries. Run it from the sqlite3 shell, in this folder:
 --
---     sqlite3 wc_database.db
+--     sqlite3
 --     sqlite> .read wc_assignment.sql
 --
 -- The script drops existing tables first, so it can be run repeatedly.
 -- =====================================================================
+
+.open wc_database.db
 
 PRAGMA foreign_keys = ON;
 
