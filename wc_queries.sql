@@ -29,9 +29,9 @@ ORDER BY g.match_id,
 -- ---------------------------------------------------------------------
 -- Query 2 (aggregate function)
 -- NL: How many goals has each team scored in the tournament?
--- RA: ρ(team_goals( country_name γ COUNT(goal_id) → total_goals (
---       (goal ⋈_{goal.player_id = player.player_id} player)
---         ⋈_{player.team_id = team.team_id} team ) )
+-- RA: team_id, country_name γ COUNT(goal_id) → total_goals (
+--    (goal ⋈_goal.player_id = player.player_id  player)
+--          ⋈_player.team_id = team.team_id  team )
 -- ---------------------------------------------------------------------
 SELECT t.country_name,
     COUNT(g.goal_id) AS total_goals
@@ -71,11 +71,11 @@ WHERE g.match_id IN (
 -- Query 4 (self join)
 -- NL: Find all pairs of players who play for the same team and in the
 --     same position (each pair listed once).
--- RA: P1 ← ρ_{p1}(player ⋈_{player.person_id = person.person_id} person)
---     P2 ← ρ_{p2}(player ⋈_{player.person_id = person.person_id} person)
---     π p1.last_name, p2.last_name, p1.position, p1.team_id (
---       P1 ⋈_{p1.team_id = p2.team_id ∧ p1.position = p2.position
---             ∧ p1.player_id < p2.player_id} P2 )
+-- RA: π_{p1.last_name, p2.last_name, p1.position, country_name} (
+--       ( ρ_{p1} (player ⋈_{player.person_id = person.person_id} person)
+--         ⋈_{p1.team_id = p2.team_id ∧ p1.position = p2.position ∧ p1.player_id < p2.player_id}
+--         ρ_{p2} (player ⋈_{player.person_id = person.person_id} person) )
+--       ⋈_{p1.team_id = team.team_id} team )
 -- ---------------------------------------------------------------------
 SELECT pe1.last_name AS player_1,
     pe2.last_name AS player_2,
