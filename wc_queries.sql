@@ -29,7 +29,7 @@ ORDER BY g.match_id,
 -- ---------------------------------------------------------------------
 -- Query 2 (aggregate function)
 -- NL: How many goals has each team scored in the tournament?
--- RA: ρ(team_goals)( country_name γ COUNT(goal_id) → total_goals (
+-- RA: ρ(team_goals( country_name γ COUNT(goal_id) → total_goals (
 --       (goal ⋈_{goal.player_id = player.player_id} player)
 --         ⋈_{player.team_id = team.team_id} team ) )
 -- ---------------------------------------------------------------------
