@@ -109,7 +109,7 @@ CREATE TABLE substitute (
 CREATE TABLE card (
 	card_id INT PRIMARY KEY,
 	minute INT NOT NULL,
-	card_type VARCHAR NOT NULL CHECK (card_type IN ("yellow", "red")),
+	card_type VARCHAR NOT NULL CHECK (card_type IN ('yellow', 'red')),
 	match_id INT NOT NULL,
 	player_id INT NOT NULL,
 	
