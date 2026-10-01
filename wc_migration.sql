@@ -1,3 +1,15 @@
+PRAGMA foreign_keys = ON;
+
+-- Referential integrity policies
+--   ON DELETE CASCADE  : rows that only exist as part of their parent
+--                        (match events and officials -> match; staff assignments -> person/team).
+--   ON DELETE RESTRICT : parents that must not disappear while referenced
+--                        (teams/stadiums with matches, players with goals/cards/substitutions,
+--                        roles in use, officials who have officiated).
+--   NO ACTION (default): player -> person, player -> team.
+--   ON UPDATE CASCADE  : on every explicit policy, so a changed key propagates to children.
+--   SET NULL is not used: every foreign key column is NOT NULL.
+
 CREATE TABLE staff_role (
 	staff_role_id INT PRIMARY KEY,
 	role_name VARCHAR NOT NULL
@@ -5,7 +17,7 @@ CREATE TABLE staff_role (
 
 CREATE TABLE official_role (
 	official_role_id INT PRIMARY KEY,
-	role_name VARCHAR NOT NULL
+	role_name VARCHAR NOT NULL UNIQUE
 );
 
 CREATE TABLE stadium (
@@ -30,14 +42,15 @@ CREATE TABLE team (
 );
 
 CREATE TABLE staff_member (
-	staff_member_id INT PRIMARY KEY,
 	person_id INT NOT NULL,
 	staff_role_id INT NOT NULL,
 	team_id INT NOT NULL,
 	
-	FOREIGN KEY (person_id) REFERENCES person(person_id),
-	FOREIGN KEY (staff_role_id) REFERENCES staff_role(staff_role_id),
-	FOREIGN KEY (team_id) REFERENCES team(team_id)
+	PRIMARY KEY (person_id, staff_role_id, team_id),
+
+	FOREIGN KEY (person_id) REFERENCES person(person_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY (staff_role_id) REFERENCES staff_role(staff_role_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+	FOREIGN KEY (team_id) REFERENCES team(team_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE player (
@@ -57,7 +70,7 @@ CREATE TABLE match (
 	team_2_id INT NOT NULL,
 	stadium_id INT NOT NULL,
 	attendance INT,
-	first_half_start DATETIME,
+	first_half_start DATETIME NOT NULL,
 	first_half_end DATETIME,
 	second_half_start DATETIME,
 	second_half_end DATETIME,
@@ -65,9 +78,9 @@ CREATE TABLE match (
 
 	CHECK (team_1_id <> team_2_id),
 
-	FOREIGN KEY (team_1_id) REFERENCES team(team_id),
-	FOREIGN KEY (team_2_id) REFERENCES team(team_id),
-	FOREIGN KEY (stadium_id) REFERENCES stadium(stadium_id)
+	FOREIGN KEY (team_1_id) REFERENCES team(team_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+	FOREIGN KEY (team_2_id) REFERENCES team(team_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+	FOREIGN KEY (stadium_id) REFERENCES stadium(stadium_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE goal (
@@ -77,8 +90,8 @@ CREATE TABLE goal (
 	match_id INT NOT NULL,
 	player_id INT NOT NULL,
 	
-	FOREIGN KEY (match_id) REFERENCES match(match_id),
-	FOREIGN KEY (player_id) REFERENCES player(player_id)
+	FOREIGN KEY (match_id) REFERENCES match(match_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY (player_id) REFERENCES player(player_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE substitute (
@@ -88,9 +101,9 @@ CREATE TABLE substitute (
 	player_in INT NOT NULL,
 	match_id INT NOT NULL,
 
-	FOREIGN KEY (player_in) REFERENCES player(player_id),
-	FOREIGN KEY (player_out) REFERENCES player(player_id),
-	FOREIGN KEY (match_id) REFERENCES match(match_id)
+	FOREIGN KEY (player_in) REFERENCES player(player_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+	FOREIGN KEY (player_out) REFERENCES player(player_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+	FOREIGN KEY (match_id) REFERENCES match(match_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE card (
@@ -100,8 +113,8 @@ CREATE TABLE card (
 	match_id INT NOT NULL,
 	player_id INT NOT NULL,
 	
-	FOREIGN KEY (match_id) REFERENCES match(match_id),
-	FOREIGN KEY (player_id) REFERENCES player(player_id)
+	FOREIGN KEY (match_id) REFERENCES match(match_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY (player_id) REFERENCES player(player_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE match_official (
@@ -111,9 +124,9 @@ CREATE TABLE match_official (
 	
 	PRIMARY KEY (official_role_id, person_id, match_id),
 
-    FOREIGN KEY (official_role_id) REFERENCES official_role(official_role_id),
-    FOREIGN KEY (person_id) REFERENCES person(person_id),
-    FOREIGN KEY (match_id) REFERENCES match(match_id)
+    FOREIGN KEY (official_role_id) REFERENCES official_role(official_role_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (person_id) REFERENCES person(person_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (match_id) REFERENCES match(match_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -166,11 +179,11 @@ INSERT INTO team (team_id, country_name, fifa_rank) VALUES
 (4, 'Argentina', 1);
 
 
-INSERT INTO staff_member (staff_member_id, person_id, staff_role_id, team_id) VALUES
-(1, 1, 1, 1),
-(2, 12, 2, 1),
-(3, 13, 3, 1),
-(4, 14, 1, 2);
+INSERT INTO staff_member (person_id, staff_role_id, team_id) VALUES
+(1, 1, 1),
+(12, 2, 1),
+(13, 3, 1),
+(14, 1, 2);
 
 
 INSERT INTO player (player_id, person_id, position, jersey_number, team_id) VALUES
